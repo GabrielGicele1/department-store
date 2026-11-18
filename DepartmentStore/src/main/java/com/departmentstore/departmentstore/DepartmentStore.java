@@ -8,6 +8,7 @@ import com.departmentstore.model.Employee;
 import com.departmentstore.model.Employee;
 import com.departmentstore.util.FileReaderUtil;
 import java.util.ArrayList;
+import com.departmentstore.service.SortingService;
 
 /**
  *
@@ -17,13 +18,21 @@ public class DepartmentStore {
 
     public static void main(String[] args) {
 
-        ArrayList<Employee> employees
-                = FileReaderUtil.readEmployees("Applicants_Form.txt");
+     // Read employees from file
+        ArrayList<Employee> employees =
+                FileReaderUtil.readEmployees("Applicants_Form.txt");
 
+        // Display total employees
         System.out.println("Total employees: " + employees.size());
 
-        for (Employee employee : employees) {
-            System.out.println(employee.getName());
+        // Sort employees alphabetically using Merge Sort
+        SortingService.mergeSort(employees);
+
+        // Display first 20 sorted employees
+        System.out.println("\nFirst 20 employees sorted alphabetically:");
+
+        for (int i = 0; i < Math.min(20, employees.size()); i++) {
+            System.out.println((i + 1) + ". " + employees.get(i).getName());
         }
     }
 }
