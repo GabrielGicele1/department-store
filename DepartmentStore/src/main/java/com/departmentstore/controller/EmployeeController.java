@@ -9,6 +9,7 @@ import com.departmentstore.view.EmployeeView;
 import com.departmentstore.enums.MenuOption;
 import com.departmentstore.service.SortingService;
 import com.departmentstore.service.SearchingService;
+import com.departmentstore.service.EmployeeValidationService;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -22,6 +23,7 @@ public class EmployeeController {
     private final ArrayList<Employee> employees;
     private final EmployeeView view;
     private final Scanner scanner;
+    private final ArrayList<Employee> newEmployees = new ArrayList<>();
 
     public EmployeeController(ArrayList<Employee> employees) {
         this.employees = employees;
@@ -65,7 +67,7 @@ public class EmployeeController {
                     break;
 
                 case ADD_EMPLOYEE:
-                    view.displayMessage("Add Employee - Coming soon.");
+                    addEmployee();
                     break;
 
                 case BINARY_TREE:
@@ -120,5 +122,106 @@ public class EmployeeController {
         } else {
             view.displayMessage("\nEmployee not found.");
         }
+    }
+
+    private void addEmployee() {
+
+        System.out.println("\n===== ADD NEW EMPLOYEE =====");
+
+        // Get employee name
+        String name;
+
+        do {
+            System.out.print("Enter employee name: ");
+            name = scanner.nextLine().trim();
+
+            if (name.isEmpty()) {
+                view.displayMessage("Name cannot be empty.");
+            }
+
+        } while (name.isEmpty());
+
+        // Display available manager types
+        String[] managerTypes
+                = EmployeeValidationService.getManagerTypes();
+
+        System.out.println("\nAvailable Manager Types:");
+
+        for (int i = 0; i < managerTypes.length; i++) {
+            System.out.println((i + 1) + ". " + managerTypes[i]);
+        }
+
+        // Validate manager type
+        String managerType;
+
+        while (true) {
+            System.out.print("Enter manager type: ");
+            managerType = scanner.nextLine().trim();
+
+            if (EmployeeValidationService.isValidManagerType(managerType)) {
+                break;
+            }
+
+            view.displayMessage("Invalid manager type. Try again.");
+        }
+
+        // Display existing departments
+        ArrayList<String> departments
+                = EmployeeValidationService.getDepartments(employees);
+
+        if (departments.isEmpty()) {
+            view.displayMessage("No departments available. Employee not added.");
+            return;
+        }
+
+        System.out.println("\nAvailable Departments:");
+
+        for (String department : departments) {
+            System.out.println("- " + department);
+        }
+
+        // Validate department
+        String department;
+
+        while (true) {
+            System.out.print("Enter department: ");
+            department = scanner.nextLine().trim();
+
+            if (EmployeeValidationService.isValidDepartment(
+                    department, employees)) {
+                break;
+            }
+
+            view.displayMessage("Invalid department. Try again.");
+        }
+
+        // Create and add employee
+        Employee newEmployee = new Employee(
+                name,
+                managerType,
+                department
+        );
+
+        employees.add(newEmployee);
+        newEmployees.add(newEmployee);
+
+        // Keep the list sorted for Binary Search
+        SortingService.mergeSort(employees);
+
+        view.displayMessage("\nEmployee added successfully!");
+        view.displayMessage("Name: " + newEmployee.getName());
+        view.displayMessage("Manager Type: " + newEmployee.getManagerType());
+        view.displayMessage("Department: " + newEmployee.getDepartment());
+        view.displayMessage("Total employees: " + employees.size());
+        view.displayMessage("\n===== NEW EMPLOYEE RECORDS =====");
+
+        for (Employee employee : newEmployees) {
+            view.displayMessage(
+                    employee.getName() + " | "
+                    + employee.getManagerType() + " | "
+                    + employee.getDepartment()
+            );
+        }
+    
     }
 }
